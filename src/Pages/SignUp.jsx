@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { createUserWithEmailAndPassword, getAuth, updateProfile } from "firebase/auth"
+import { db } from "../firebase";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import OAuth from "../components/OAuth";
+import { serverTimestamp, setDoc, doc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +16,7 @@ function SignUp() {
     email: "",
     password: "",
   });
+  const navigate = useNavigate()
 
   function onFormChange(e) {
     setFormData((prev) => ({
@@ -18,12 +25,33 @@ function SignUp() {
     }));
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      const auth = getAuth()
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+
+      updateProfile(auth.currentUser, { displayName: fullName })
+      const user = userCredential.user
+      const formDataCopy = {...formData} //To get everything inside the formData
+      delete formDataCopy.password
+      formDataCopy.timeStamp = serverTimestamp()
+
+      await setDoc(doc(db, "users", user.uid), formDataCopy)
+      toast.success("Sign up was successful 😃")
+      navigate("/")
+    } catch (error) {
+      toast.error("Something went wrong with the registration 😞")
+    }
+    
+  }
+
   const { fullName, email, password } = formData;
   return (
     <section>
       <h1 className="text-3xl font-bold text-center mt-6">Sign Up</h1>
       <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
-        <div className="md:w-[67%] lg:w-[50%] h-[36rem] mb-12 md:mb-6">
+        <div className="md:w-[67%] lg:w-[50%] h-[28rem] mb-12 md:mb-6">
           <img
             src="https://images.unsplash.com/photo-1695710765217-9443fb6e3494?auto=format&fit=crop&q=80&w=2535&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D "
             alt="house"
@@ -32,7 +60,7 @@ function SignUp() {
         </div>
 
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={handleSubmit}>
             <input
               className="w-full mb-6 px-4 py-2 text-xl text-body bg-white border-body rounded-lg transition ease-in-out"
               placeholder="Full Name"
