@@ -37,7 +37,7 @@ function SignUp() {
       delete formDataCopy.password
       formDataCopy.timeStamp = serverTimestamp()
 
-      await setDoc(doc(db, "users", user.uid), formDataCopy)
+      await setDoc(doc(db, "users", user.uid), formDataCopy) //Database storage
       toast.success("Sign up was successful 😃")
       navigate("/")
     } catch (error) {
@@ -51,7 +51,7 @@ function SignUp() {
     <section>
       <h1 className="text-3xl font-bold text-center mt-6">Sign Up</h1>
       <div className="flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto">
-        <div className="md:w-[67%] lg:w-[50%] h-[28rem] mb-12 md:mb-6">
+        <div className="md:w-[67%] lg:w-[50%] w-full h-[28rem] mb-12 md:mb-6">
           <img
             src="https://images.unsplash.com/photo-1695710765217-9443fb6e3494?auto=format&fit=crop&q=80&w=2535&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D "
             alt="house"
